@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<!-- saved from url=(0078)file:///C:/Users/yc/Desktop/%E4%B8%89%E8%A7%92%E6%B4%B2%E8%AE%B0%E5%BD%95.html -->
+<html lang="zh-CN"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>芒果电竞本地或外派单记录</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+        body {
+            background-color: #f5f7fa;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 30px;
+        }
+        h1 {
+            text-align: center;
+            color: #2d3748;
+            margin-bottom: 30px;
+            font-weight: 700;
+            font-size: 28px;
+        }
+        .form-section {
+            background: #f0f8fb;
+            padding: 25px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+        @media (max-width: 768px) {
+            .form-section {
+                grid-template-columns: 1fr;
+            }
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #4a5568;
+            font-weight: 500;
+            font-size: 15px;
+        }
+        input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            font-size: 16px;
+            transition: border 0.3s, box-shadow 0.3s;
+        }
+        input:focus {
+            outline: none;
+            border-color: #4299e1;
+            box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.1);
+        }
+        .btn-group {
+            grid-column: 1 / -1;
+            text-align: center;
+            margin-top: 10px;
+        }
+        .btn {
+            background: #4299e1;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background 0.3s;
+            margin: 0 5px;
+        }
+        .btn:hover {
+            background: #3182ce;
+        }
+        .btn-reset {
+            background: #9f7aea;
+        }
+        .btn-reset:hover {
+            background: #805ad5;
+        }
+        .table-section {
+            margin-top: 30px;
+            overflow-x: auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+        th {
+            background: #f8f9fa;
+            color: #333;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+        tr:hover {
+            background: #fafafa;
+        }
+        .delete-btn {
+            background: #e53e3e;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.3s;
+        }
+        .delete-btn:hover {
+            background: #c53030;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+            font-size: 18px;
+        }
+        .editable {
+            cursor: text;
+            border-bottom: 1px dashed #999;
+        }
+        .editable:hover {
+            border-color: #4299e1;
+        }
+        .edit-input {
+            width: 100%;
+            padding: 8px 10px;
+            border: 1px solid #4299e1;
+            border-radius: 4px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>芒果电竞本地或外派单记录</h1>
+
+        <!-- 录入表单 -->
+        <div class="form-section">
+            <div class="form-group">
+                <label for="orderBoss">订单号/老板ID</label>
+                <input type="text" id="orderBoss" placeholder="直接输入，无格式要求" required="">
+            </div>
+            <div class="form-group">
+                <label for="localOrExternal">本地/外派</label>
+                <input type="text" id="localOrExternal" placeholder="请输入类型（本地/外派）" required="">
+            </div>
+            <div class="form-group">
+                <label for="amount">金额（元）</label>
+                <input type="number" id="amount" placeholder="请输入金额" step="0.01" required="">
+            </div>
+            <div class="form-group">
+                <label for="打手Id">打手ID</label>
+                <input type="text" id="打手Id" placeholder="请输入打手ID（未分配可留空）">
+            </div>
+            <div class="form-group">
+                <label for="isCompleted">是否结单</label>
+                <input type="text" id="isCompleted" placeholder="请输入结单状态（如：是/否/处理中）" required="">
+            </div>
+            <div class="btn-group">
+                <button class="btn" onclick="addRecord()">添加记录</button>
+                <button class="btn btn-reset" onclick="resetForm()">重置表单</button>
+            </div>
+        </div>
+
+        <!-- 记录表格 -->
+        <div class="table-section">
+            <h2>订单记录列表（点击单元格直接编辑）</h2>
+            
+                        &lt;<table id="recordTable">
+                <thead>
+                    <tr><th>订单号/老板ID<!--</th-->
+                        &lt;</th><th>本地/外派<!--</th-->
+                        &lt;</th><th>金额（元）<!--</th-->
+                        &lt;</th><th>打手ID<!--</th-->
+                        &lt;</th><th>是否结单<!--</th-->
+                        &lt;</th><th>操作<!--</th-->
+                    </th></tr>
+                </thead>
+                <tbody id="recordBody"><tr>
+                    <td class="editable" data-field="orderBoss" onclick="makeEditable(this, 0)">6922439136517783292 BTG9</td>
+                    <td class="editable" data-field="localOrExternal" onclick="makeEditable(this, 0)">本地</td>
+                    <td class="editable" data-field="amount" onclick="makeEditable(this, 0)">140.00</td>
+                    <td class="editable" data-field="打手Id" onclick="makeEditable(this, 0)">2</td>
+                    <td class="editable" data-field="isCompleted" onclick="makeEditable(this, 0)">商家未结140</td>
+                    <td><button class="delete-btn" onclick="deleteRecord(0)">删除</button></td>
+                </tr><tr>
+                    <td class="editable" data-field="orderBoss" onclick="makeEditable(this, 1)">6922426805588753678 一只yan</td>
+                    <td class="editable" data-field="localOrExternal" onclick="makeEditable(this, 1)">外派</td>
+                    <td class="editable" data-field="amount" onclick="makeEditable(this, 1)">70.00</td>
+                    <td class="editable" data-field="打手Id" onclick="makeEditable(this, 1)">mett1</td>
+                    <td class="editable" data-field="isCompleted" onclick="makeEditable(this, 1)">商家未结80</td>
+                    <td><button class="delete-btn" onclick="deleteRecord(1)">删除</button></td>
+                </tr><tr>
+                    <td class="editable" data-field="orderBoss" onclick="makeEditable(this, 2)">4888355835081761136 好战之徒</td>
+                    <td class="editable" data-field="localOrExternal" onclick="makeEditable(this, 2)">本地</td>
+                    <td class="editable" data-field="amount" onclick="makeEditable(this, 2)">110.00</td>
+                    <td class="editable" data-field="打手Id" onclick="makeEditable(this, 2)">2</td>
+                    <td class="editable" data-field="isCompleted" onclick="makeEditable(this, 2)">商家未结110</td>
+                    <td><button class="delete-btn" onclick="deleteRecord(2)">删除</button></td>
+                </tr><tr>
+                    <td class="editable" data-field="orderBoss" onclick="makeEditable(this, 3)">3069582817120461750,3069186243969461750 珊的仆人</td>
+                    <td class="editable" data-field="localOrExternal" onclick="makeEditable(this, 3)">本地</td>
+                    <td class="editable" data-field="amount" onclick="makeEditable(this, 3)">170.00</td>
+                    <td class="editable" data-field="打手Id" onclick="makeEditable(this, 3)">2</td>
+                    <td class="editable" data-field="isCompleted" onclick="makeEditable(this, 3)">商家未结170</td>
+                    <td><button class="delete-btn" onclick="deleteRecord(3)">删除</button></td>
+                </tr><tr>
+                    <td class="editable" data-field="orderBoss" onclick="makeEditable(this, 4)">6948086124300146525 宁古塔土地公</td>
+                    <td class="editable" data-field="localOrExternal" onclick="makeEditable(this, 4)">外派</td>
+                    <td class="editable" data-field="amount" onclick="makeEditable(this, 4)">105.00</td>
+                    <td class="editable" data-field="打手Id" onclick="makeEditable(this, 4)">四个点</td>
+                    <td class="editable" data-field="isCompleted" onclick="makeEditable(this, 4)">商家未结125</td>
+                    <td><button class="delete-btn" onclick="deleteRecord(4)">删除</button></td>
+                </tr><tr>
+                    <td class="editable" data-field="orderBoss" onclick="makeEditable(this, 5)">6922453301035105514 谁会哭泣</td>
+                    <td class="editable" data-field="localOrExternal" onclick="makeEditable(this, 5)">外派</td>
+                    <td class="editable" data-field="amount" onclick="makeEditable(this, 5)">70.00</td>
+                    <td class="editable" data-field="打手Id" onclick="makeEditable(this, 5)">马达</td>
+                    <td class="editable" data-field="isCompleted" onclick="makeEditable(this, 5)">商家未结85</td>
+                    <td><button class="delete-btn" onclick="deleteRecord(5)">删除</button></td>
+                </tr></tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        // 从本地存储加载记录
+        function loadRecords() {
+            const records = JSON.parse(localStorage.getItem('mangoEsportsRecords') || '[]');
+            const tableBody = document.getElementById('recordBody');
+            tableBody.innerHTML = '';
+
+            if (records.length === 0) {
+                tableBody.innerHTML = '<tr class="empty-state"><td colspan="6">暂无记录，请添加订单信息</td></tr>';
+                return;
+            }
+
+            records.forEach((record, index) => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="editable" data-field="orderBoss" onclick="makeEditable(this, ${index})">${record.orderBoss}</td>
+                    <td class="editable" data-field="localOrExternal" onclick="makeEditable(this, ${index})">${record.localOrExternal}</td>
+                    <td class="editable" data-field="amount" onclick="makeEditable(this, ${index})">${parseFloat(record.amount).toFixed(2)}</td>
+                    <td class="editable" data-field="打手Id" onclick="makeEditable(this, ${index})">${record.打手Id || '未分配'}</td>
+                    <td class="editable" data-field="isCompleted" onclick="makeEditable(this, ${index})">${record.isCompleted}</td>
+                    <td><button class="delete-btn" onclick="deleteRecord(${index})">删除</button></td>
+                `;
+                tableBody.appendChild(tr);
+            });
+        }
+
+        // 添加新记录
+        function addRecord() {
+            const orderBoss = document.getElementById('orderBoss').value.trim();
+            const localOrExternal = document.getElementById('localOrExternal').value.trim();
+            const amount = document.getElementById('amount').value.trim();
+            const 打手Id = document.getElementById('打手Id').value.trim();
+            const isCompleted = document.getElementById('isCompleted').value.trim();
+
+            // 验证必填项
+            if (!orderBoss || !localOrExternal || !amount || !isCompleted) {
+                alert('请填写完整必填信息！');
+                return;
+            }
+
+            // 构建记录对象
+            const newRecord = {
+                orderBoss: orderBoss,
+                localOrExternal: localOrExternal,
+                amount: parseFloat(amount).toFixed(2),
+                打手Id: 打手Id,
+                isCompleted: isCompleted
+            };
+            const records = JSON.parse(localStorage.getItem('mangoEsportsRecords') || '[]');
+            records.push(newRecord);
+
+            // 保存到本地存储
+            localStorage.setItem('mangoEsportsRecords', JSON.stringify(records));
+
+            // 重置表单
+            resetForm();
+
+            // 重新加载表格
+            loadRecords();
+        }
+
+        // 删除记录
+        function deleteRecord(index) {
+            if (confirm('确定要删除这条记录吗？')) {
+                const records = JSON.parse(localStorage.getItem('mangoEsportsRecords') || '[]');
+                records.splice(index, 1);
+                localStorage.setItem('mangoEsportsRecords', JSON.stringify(records));
+                loadRecords();
+            }
+        }
+
+        // 单元格直接编辑
+        function makeEditable(cell, index) {
+            // 若已处于编辑状态，不重复创建输入框
+            if (cell.querySelector('input')) return;
+
+            const field = cell.dataset.field;
+            const currentValue = cell.innerText;
+            let inputHtml = '';
+
+            // 根据字段类型创建对应输入框
+            if (field === 'amount') {
+                inputHtml = `<input type="number" class="edit-input" value="${parseFloat(currentValue).toFixed(2)}" step="0.01">`;
+            } else {
+                inputHtml = `<input type="text" class="edit-input" value="${currentValue === '未分配' ? '' : currentValue}">`;
+            }
+
+            // 替换单元格内容为输入框
+            cell.innerHTML = inputHtml;
+            const input = cell.querySelector('input');
+            input.focus();
+
+            // 失去焦点或回车时保存
+            input.addEventListener('blur', () => saveEdit(cell, index, field));
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') saveEdit(cell, index, field);
+            });
+        }
+
+        // 保存编辑内容
+        function saveEdit(cell, index, field) {
+            const input = cell.querySelector('input');
+            let newValue = input.value.trim();
+            const records = JSON.parse(localStorage.getItem('mangoEsportsRecords') || '[]');
+
+            // 验证和格式化
+            if (field === 'amount') {
+                if (!newValue || isNaN(parseFloat(newValue))) {
+                    alert('请输入有效的金额！');
+                    cell.innerText = parseFloat(records[index].amount).toFixed(2);
+                    return;
+                }
+                newValue = parseFloat(newValue).toFixed(2);
+            } else if (field === 'localOrExternal' || field === 'isCompleted' || field === 'orderBoss') {
+                if (!newValue) {
+                    alert('该字段不能为空！');
+                    cell.innerText = records[index][field];
+                    return;
+                }
+            } else if (field === '打手Id') {
+                newValue = newValue || '未分配';
+            }
+
+            // 保存到本地存储
+            records[index][field] = newValue;
+            localStorage.setItem('mangoEsportsRecords', JSON.stringify(records));
+
+            // 更新单元格显示
+            cell.innerText = newValue;
+        }
+
+        // 重置表单
+        function resetForm() {
+            document.getElementById('orderBoss').value = '';
+            document.getElementById('localOrExternal').value = '';
+            document.getElementById('amount').value = '';
+            document.getElementById('打手Id').value = '';
+            document.getElementById('isCompleted').value = '';
+        }
+
+        // 页面加载时加载记录
+        window.onload = loadRecords;
+    </script>
+
+</body></html>
